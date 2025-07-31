@@ -1,8 +1,6 @@
 class Movie < ActiveRecord::Base
-  # TODO: Implement the following 100 methods using ActiveRecord query methods
-  # Mix of CLASS METHODS (work on collections) and INSTANCE METHODS (work on individual movies)
-
   # ==================== BASIC FINDERS (Class Methods) ====================
+
   # 1. Find movie by exact title
   def self.find_by_exact_title(title)
     find_by(title: title)
@@ -29,495 +27,569 @@ class Movie < ActiveRecord::Base
   end
 
   # ==================== RATING QUERIES (Class Methods) ====================
+
   # 6. Find highly rated movies (>= 8.0)
   def self.highly_rated
-    # TODO: Use .where with comparison operator
+    where("rating >= ?", 8.0)
   end
 
   # 7. Find poorly rated movies (< 4.0)
   def self.poorly_rated
-    # TODO: Use .where with comparison operator
+    where("rating < ?", 4.0)
   end
 
   # 8. Find movies with specific rating
   def self.with_rating(rating)
-    # TODO: Use .where to find movies with exact rating
+    where(rating: rating)
   end
 
   # 9. Find movies with rating between range
   def self.rating_between(min_rating, max_rating)
-    # TODO: Use .where with range or BETWEEN
+    where(rating: min_rating..max_rating)
   end
 
   # 10. Find movies with rating above threshold
   def self.rating_above(threshold)
-    # TODO: Use .where with comparison
+    where("rating > ?", threshold)
   end
 
   # ==================== INSTANCE METHODS - MOVIE PROPERTIES ====================
+
   # 11. Check if this movie is highly rated (>= 8.0)
   def highly_rated?
-    # TODO: Check if this movie's rating >= 8.0
+    rating >= 8.0
   end
 
   # 12. Check if this movie is poorly rated (< 4.0)
   def poorly_rated?
-    # TODO: Check if this movie's rating < 4.0
+    rating < 4.0
   end
 
   # 13. Check if this movie is profitable
   def profitable?
-    # TODO: Check if box_office > budget
+    box_office > budget
   end
 
   # 14. Check if this movie is a blockbuster (> $500M box office)
   def blockbuster?
-    # TODO: Check if box_office > 500_000_000
+    box_office > 500_000_000
   end
 
   # 15. Check if this movie is big budget (> $100M)
   def big_budget?
-    # TODO: Check if budget > 100_000_000
+    budget > 100_000_000
   end
 
   # ==================== BUDGET & BOX OFFICE (Class Methods) ====================
+
   # 16. Find big budget movies (> $100M)
   def self.big_budget
-    # TODO: Use .where with budget comparison
+    where("budget > ?", 100_000_000)
   end
 
   # 17. Find low budget movies (< $5M)
   def self.low_budget
-    # TODO: Use .where with budget comparison
+    where("budget < ?", 5_000_000)
   end
 
-  # 18. Find profitable movies (box_office > budget)
+  # 18. Find profitable movies
   def self.profitable
-    # TODO: Use .where with column comparison
+    where("box_office > budget")
   end
 
-  # 19. Find unprofitable movies (box_office < budget)
+  # 19. Find unprofitable movies
   def self.unprofitable
-    # TODO: Use .where with column comparison
+    where("box_office <= budget")
   end
 
   # 20. Find movies with budget in range
   def self.budget_between(min_budget, max_budget)
-    # TODO: Use .where with range
+    where(budget: min_budget..max_budget)
   end
 
-  # 21. Find blockbusters (box_office > $500M)
+  # 21. Find blockbuster movies (> $500M box office)
   def self.blockbusters
-    # TODO: Use .where with box_office comparison
+    where("box_office > ?", 500_000_000)
   end
 
-  # 22. Find box office flops (box_office < budget * 0.5)
+  # 22. Find box office flops (< $10M box office)
   def self.box_office_flops
-    # TODO: Use .where with calculation
+    where("box_office < ?", 10_000_000)
   end
 
   # ==================== INSTANCE METHODS - CALCULATIONS ====================
-  # 23. Calculate profit for this movie
+
+  # 23. Calculate profit
   def profit
-    # TODO: Return box_office - budget
+    box_office - budget
   end
 
-  # 24. Calculate profit margin percentage for this movie
+  # 24. Calculate profit margin as percentage
   def profit_margin
-    # TODO: Return ((box_office - budget) / budget * 100) if budget > 0
+    return 0 if budget.zero?
+    ((box_office - budget).to_f / budget * 100).round(2)
   end
 
-  # 25. Calculate ROI (Return on Investment) for this movie
+  # 25. Calculate return on investment
   def roi
-    # TODO: Return (box_office / budget * 100) if budget > 0
+    return 0 if budget.zero?
+    (box_office.to_f / budget * 100).round(2)
   end
 
-  # 26. Get runtime in hours and minutes (e.g., "2h 15m")
+  # 26. Format runtime as "Xh Ym"
   def runtime_formatted
-    # TODO: Convert runtime minutes to "Xh Ym" format
+    return "0m" if runtime.nil? || runtime.zero?
+    hours = runtime / 60
+    minutes = runtime % 60
+    "#{hours}h #{minutes}m"
   end
 
-  # 27. Check if this movie is from a specific decade
+  # 27. Check if movie is from specific decade
   def from_decade?(decade)
-    # TODO: Check if release_year is in the decade (e.g., 1990s = 1990-1999)
+    return false if release_year.nil?
+    release_year >= decade && release_year < decade + 10
   end
 
   # ==================== YEAR & DATE QUERIES (Class Methods) ====================
+
   # 28. Find movies from specific decade
   def self.from_decade(decade)
-    # TODO: Use .where with year range (e.g., 1990s = 1990-1999)
+    return none if decade.nil?
+    where(release_year: decade..decade+9)
   end
 
   # 29. Find movies released between years
   def self.released_between(start_year, end_year)
-    # TODO: Use .where with year range
+    where(release_year: start_year..end_year)
   end
 
   # 30. Find recent movies (last 5 years)
   def self.recent_movies
-    # TODO: Use .where with calculated year range
+    current_year = Date.current.year
+    where("release_year >= ?", current_year - 6)
   end
 
   # 31. Find classic movies (before 1980)
   def self.classic_movies
-    # TODO: Use .where with year comparison
+    where("release_year < ?", 1980)
   end
 
-  # 32. Find movies from 21st century
+  # 32. Find 21st century movies (2000 onwards)
   def self.twenty_first_century
-    # TODO: Use .where with year >= 2000
+    where("release_year >= ?", 2000)
   end
 
   # ==================== INSTANCE METHODS - RELATED MOVIES ====================
-  # 33. Find other movies by the same director
+
+  # 33. Find other movies by same director
   def same_director_movies
-    # TODO: Find movies with same director, excluding this movie
+    self.class.where(director: director).where.not(id: id)
   end
 
-  # 34. Find other movies in the same genre
+  # 34. Find other movies in same genre
   def same_genre_movies
-    # TODO: Find movies with same genre, excluding this movie
+    self.class.where(genre: genre).where.not(id: id)
   end
 
-  # 35. Find other movies from the same year
+  # 35. Find other movies from same year
   def same_year_movies
-    # TODO: Find movies from same release_year, excluding this movie
+    self.class.where(release_year: release_year).where.not(id: id)
   end
 
-  # 36. Find other movies from the same studio
+  # 36. Find other movies from same studio
   def same_studio_movies
-    # TODO: Find movies from same studio, excluding this movie
+    self.class.where(studio: studio).where.not(id: id)
   end
 
-  # 37. Check if this movie is a recent release (last 5 years)
+  # 37. Check if movie is recent (within last 5 years)
   def recent?
-    # TODO: Check if release_year is within last 5 years
+    return false if release_year.nil?
+    release_year >= Date.current.year - 6
   end
 
   # ==================== ORDERING & LIMITING (Class Methods) ====================
-  # 38. Find movies ordered by rating (highest first)
+
+  # 38. Order movies by rating descending
   def self.by_rating_desc
-    # TODO: Use .order with DESC
+    order(rating: :desc)
   end
 
-  # 39. Find movies ordered by release year (newest first)
+  # 39. Order movies by year descending
   def self.by_year_desc
-    # TODO: Use .order with DESC
+    order(release_year: :desc)
   end
 
-  # 40. Find top N highest rated movies
+  # 40. Get top N highest rated movies
   def self.top_rated(limit = 10)
-    # TODO: Use .order and .limit
+    order(rating: :desc).limit(limit)
   end
 
-  # 41. Find top N highest grossing movies
+  # 41. Get top N highest grossing movies
   def self.top_grossing(limit = 10)
-    # TODO: Use .order by box_office DESC and .limit
+    order(box_office: :desc).limit(limit)
   end
 
-  # 42. Find longest movies (by runtime)
+  # 42. Get longest movies
   def self.longest_movies(limit = 10)
-    # TODO: Use .order by runtime DESC and .limit
+    order(runtime: :desc).limit(limit)
   end
 
-  # 43. Find shortest movies (by runtime)
+  # 43. Get shortest movies
   def self.shortest_movies(limit = 10)
-    # TODO: Use .order by runtime ASC and .limit
+    order(runtime: :asc).limit(limit)
   end
 
-  # 44. Find movies with pagination
+  # 44. Paginate results
   def self.paginated(page, per_page = 20)
-    # TODO: Use .limit and .offset for pagination
+    offset((page - 1) * per_page).limit(per_page)
   end
 
-  # 45. Find random movies
+  # 45. Get random movies
   def self.random_movies(count = 5)
-    # TODO: Use random ordering and limit
+    order("RANDOM()").limit(count)
   end
 
   # ==================== INSTANCE METHODS - COMPARISONS ====================
-  # 46. Check if this movie is longer than given duration
+
+  # 46. Check if movie is longer than duration
   def longer_than?(minutes)
-    # TODO: Check if runtime > minutes
+    return false if runtime.nil?
+    runtime > minutes
   end
 
-  # 47. Check if this movie is shorter than given duration
+  # 47. Check if movie is shorter than duration
   def shorter_than?(minutes)
-    # TODO: Check if runtime < minutes
+    return false if runtime.nil?
+    runtime < minutes
   end
 
-  # 48. Check if this movie is better rated than another movie
+  # 48. Compare ratings with another movie
   def better_rated_than?(other_movie)
-    # TODO: Compare ratings with another movie
+    return false if rating.nil? || other_movie.rating.nil?
+    rating > other_movie.rating
   end
 
-  # 49. Check if this movie made more money than another movie
+  # 49. Compare box office success
   def more_successful_than?(other_movie)
-    # TODO: Compare box_office with another movie
+    return false if box_office.nil? || other_movie.box_office.nil?
+    box_office > other_movie.box_office
   end
 
-  # 50. Check if this movie is in a foreign language
+  # 50. Check if movie is foreign language
   def foreign_language?
-    # TODO: Check if language != 'English'
+    language != "English"
   end
 
   # ==================== STRING OPERATIONS (Class Methods) ====================
-  # 51. Search movies by title (case insensitive)
+
+  # 51. Search movies by title keyword
   def self.search_title(keyword)
-    # TODO: Use .where with LIKE or ILIKE
+    where("title LIKE ?", "%#{keyword}%")
   end
 
   # 52. Find movies with title starting with letter
   def self.title_starts_with(letter)
-    # TODO: Use .where with LIKE pattern
+    where("title LIKE ?", "#{letter}%")
   end
 
   # 53. Find movies with title ending with word
   def self.title_ends_with(word)
-    # TODO: Use .where with LIKE pattern
+    where("title LIKE ?", "%#{word}")
   end
 
   # 54. Find movies with title containing word
   def self.title_contains(word)
-    # TODO: Use .where with LIKE pattern
+    where("title LIKE ?", "%#{word}%")
   end
 
-  # 55. Search directors by name (partial match)
+  # 55. Search directors by partial name
   def self.search_director(name)
-    # TODO: Use .where with LIKE for director field
+    where("director LIKE ?", "%#{name}%")
   end
 
-  # ==================== INSTANCE METHODS - STRING OPERATIONS ====================
-  # 56. Get movie title in uppercase
+  # ==================== STRING OPERATIONS (Instance Methods) ====================
+
+  # 56. Return title in uppercase
   def title_upcase
-    # TODO: Return title in uppercase
+    title.upcase
   end
 
-  # 57. Get formatted display name with year
+  # 57. Return formatted display name with year
   def display_name
-    # TODO: Return "Title (Year)" format
+    "#{title} (#{release_year})"
   end
 
-  # 58. Get short summary of the movie
+  # 58. Return movie summary
   def summary
-    # TODO: Return formatted string with key movie info
+    "#{title} (#{release_year}) - #{genre} film directed by #{director}. Rating: #{rating}/10"
   end
 
-  # 59. Check if title contains a specific word
+  # 59. Check if title contains word
   def title_contains?(word)
-    # TODO: Check if title contains word (case insensitive)
+    title.downcase.include?(word.downcase)
   end
 
-  # 60. Get initials of the director
+  # 60. Return director initials
   def director_initials
-    # TODO: Return director name initials (e.g., "Steven Spielberg" -> "S.S.")
+    director.split.map(&:first).join
   end
 
-  # ==================== CALCULATIONS & AGGREGATIONS (Class Methods) ====================
+  # ==================== AGGREGATIONS & CALCULATIONS (Class Methods) ====================
+
   # 61. Count movies by genre
   def self.count_by_genre
-    # TODO: Use .group and .count
+    group(:genre).count
   end
 
-  # 62. Average rating by genre
+  # 62. Calculate average rating by genre
   def self.average_rating_by_genre
-    # TODO: Use .group and .average
+    group(:genre).average(:rating)
   end
 
-  # 63. Total box office by studio
+  # 63. Calculate total box office by studio
   def self.total_box_office_by_studio
-    # TODO: Use .group and .sum
+    group(:studio).sum(:box_office)
   end
 
   # 64. Count movies by director
   def self.count_by_director
-    # TODO: Use .group and .count
+    group(:director).count
   end
 
-  # 65. Average budget by decade
+  # 65. Calculate average budget by decade
   def self.average_budget_by_decade
-    # TODO: Use .group with calculated decade and .average
+    select(Arel.sql("(release_year / 10) * 10 as decade, AVG(budget) as avg_budget"))
+      .group(Arel.sql("(release_year / 10) * 10"))
+      .pluck(Arel.sql("(release_year / 10) * 10"), Arel.sql("AVG(budget)"))
+      .to_h
   end
 
   # 66. Find directors with most movies
   def self.directors_with_most_movies(limit = 10)
-    # TODO: Use .group, .count, .order, and .limit
+    group(:director).count.sort_by { |_, count| -count }.first(limit).map(&:first)
   end
 
-  # 67. Find total runtime of all movies
+  # 67. Calculate total runtime of all movies
   def self.total_runtime
-    # TODO: Use .sum
+    sum(:runtime)
   end
 
-  # 68. Find average movie length
+  # 68. Calculate average runtime
   def self.average_runtime
-    # TODO: Use .average
+    average(:runtime)
   end
 
   # 69. Find highest budget movie
   def self.highest_budget_movie
-    # TODO: Use .maximum or .order.first
+    order(budget: :desc).first
   end
 
   # 70. Find lowest rated movie
   def self.lowest_rated_movie
-    # TODO: Use .minimum or .order.first
+    order(rating: :asc).first
   end
 
   # ==================== EXISTENCE & PRESENCE (Class Methods) ====================
+
   # 71. Check if genre exists
   def self.genre_exists?(genre_name)
-    # TODO: Use .exists?
+    exists?(genre: genre_name)
   end
 
-  # 72. Check if director has any movies
+  # 72. Check if director exists
   def self.director_exists?(director_name)
-    # TODO: Use .exists? with condition
+    exists?(director: director_name)
   end
 
-  # 73. Check if highly rated movies exist in genre
+  # 73. Check if genre has highly rated movies
   def self.has_highly_rated_in_genre?(genre_name)
-    # TODO: Use .exists? with multiple conditions
+    exists?(genre: genre_name, rating: 8.0..Float::INFINITY)
   end
 
   # 74. Find movies with missing data
   def self.with_missing_data
-    # TODO: Use .where with NULL checks
+    where("rating IS NULL OR budget IS NULL OR box_office IS NULL OR runtime IS NULL")
   end
 
-  # 75. Find complete movies (no missing data)
+  # 75. Find movies with complete data
   def self.complete_data
-    # TODO: Use .where with NOT NULL checks
+    where.not(rating: nil).where.not(budget: nil).where.not(box_office: nil).where.not(runtime: nil)
   end
 
   # ==================== DATA EXTRACTION (Class Methods) ====================
-  # 76. Get list of all genres
+
+  # 76. Get all unique genres
   def self.all_genres
-    # TODO: Use .distinct.pluck
+    distinct.pluck(:genre).compact.sort
   end
 
-  # 77. Get list of all directors
+  # 77. Get all unique directors
   def self.all_directors
-    # TODO: Use .distinct.pluck
+    distinct.pluck(:director).compact.sort
   end
 
   # 78. Get all movie titles
   def self.all_titles
-    # TODO: Use .pluck
+    pluck(:title)
   end
 
-  # 79. Get title and year pairs
+  # 79. Get title-year pairs
   def self.title_year_pairs
-    # TODO: Use .pluck with multiple columns
+    pluck(:title, :release_year)
   end
 
-  # 80. Get unique studios
+  # 80. Get unique studio names
   def self.unique_studios
-    # TODO: Use .distinct.pluck
+    distinct.pluck(:studio).compact.sort
   end
 
   # 81. Get rating distribution
   def self.rating_distribution
-    # TODO: Use .group and .count on rating
+    group("ROUND(rating)").count
   end
 
-  # 82. Get years with movies
+  # 82. Get active years (years with releases)
   def self.active_years
-    # TODO: Use .distinct.pluck(:release_year).sort
+    distinct.pluck(:release_year).compact.sort
   end
 
   # ==================== COMPLEX COMBINATIONS (Class Methods) ====================
+
   # 83. Find expensive flops (high budget, low box office)
   def self.expensive_flops
-    # TODO: Use .where with multiple conditions on budget and box_office
+    where("budget >= ? AND box_office < budget * 0.5", 50_000_000)
   end
 
   # 84. Find surprise hits (low budget, high box office)
   def self.surprise_hits
-    # TODO: Use .where with conditions on budget and box_office
+    where("budget < ? AND box_office > budget * 10", 20_000_000)
   end
 
-  # 85. Find critically acclaimed blockbusters
+  # 85. Find acclaimed blockbusters (high rating AND high box office)
   def self.acclaimed_blockbusters
-    # TODO: Use .where with rating and box_office conditions
+    where("rating >= ? AND box_office > ?", 8.0, 500_000_000)
   end
 
   # 86. Find long highly rated movies
   def self.long_highly_rated
-    # TODO: Use .where with runtime and rating conditions
+    where("runtime > ? AND rating >= ?", 120, 8.0)
   end
 
   # 87. Find recent big budget movies
   def self.recent_big_budget
-    # TODO: Use .where with year and budget conditions
+    current_year = Date.current.year
+    where("release_year >= ? AND budget > ?", current_year - 6, 100_000_000)
   end
 
-  # 88. Find foreign language hits
+  # 88. Find successful foreign language movies
   def self.foreign_language_hits
-    # TODO: Use .where with language != 'English' and box_office conditions
+    where.not(language: "English").where("box_office > budget * 5")
   end
 
-  # ==================== SCOPING & CHAINING (Class Methods) ====================
-  # 89. Find action movies from specific director
+  # ==================== ADVANCED QUERY METHODS (Class Methods) ====================
+
+  # 89. Find action movies by specific director
   def self.action_by_director(director_name)
-    # TODO: Chain .where conditions for genre and director
+    where(genre: "Action", director: director_name)
   end
 
   # 90. Find highly rated recent movies in genre
   def self.highly_rated_recent_in_genre(genre_name)
-    # TODO: Chain multiple .where conditions
+    current_year = Date.current.year
+    where(genre: genre_name)
+      .where("rating >= ?", 8.0)
+      .where("release_year >= ?", current_year - 6)
   end
 
   # 91. Find profitable movies by studio
   def self.profitable_by_studio(studio_name)
-    # TODO: Chain .where conditions for profitability and studio
+    where(studio: studio_name).where("box_office > budget")
   end
 
   # 92. Find top rated movies in decade
   def self.top_rated_in_decade(decade, limit = 5)
-    # TODO: Chain .where, .order, and .limit
+    where(release_year: decade..decade+9)
+      .order(rating: :desc)
+      .limit(limit)
   end
 
   # 93. Find longest movies in genre
   def self.longest_in_genre(genre_name, limit = 5)
-    # TODO: Chain .where, .order by runtime, and .limit
+    where(genre: genre_name)
+      .order(runtime: :desc)
+      .limit(limit)
   end
 
-  # ==================== HAVING CLAUSES (Class Methods) ====================
-  # 94. Find genres with average rating above threshold
-  def self.genres_with_high_average_rating(threshold = 7.0)
-    # TODO: Use .group, .average, and .having
+  # 94. Find genres with high average rating
+  def self.genres_with_high_average_rating(threshold = 6.5)
+    group(:genre)
+      .having("AVG(rating) >= ?", threshold)
+      .pluck(:genre)
   end
 
-  # 95. Find directors with multiple highly rated movies
+  # 95. Find directors with multiple hits
   def self.directors_with_multiple_hits
-    # TODO: Use .where, .group, .count, and .having
+    joins("INNER JOIN (#{select(:director).where('box_office > budget * 3').group(:director).having('COUNT(*) >= 2').to_sql}) hits ON hits.director = movies.director")
+      .distinct
+      .pluck(:director)
   end
 
-  # 96. Find studios with high total box office
+  # 96. Find successful studios
   def self.successful_studios(min_total = 1_000_000_000)
-    # TODO: Use .group, .sum, and .having
+    group(:studio)
+      .having("SUM(box_office) >= ?", min_total)
+      .pluck(:studio)
   end
 
-  # 97. Find years with many movie releases
+  # 97. Find prolific years
   def self.prolific_years(min_count = 10)
-    # TODO: Use .group, .count, and .having
+    group(:release_year)
+      .having("COUNT(*) >= ?", min_count)
+      .pluck(:release_year)
   end
 
-  # ==================== ADVANCED COMPLEX QUERIES (Class Methods) ====================
   # 98. Get comprehensive movie statistics
   def self.movie_statistics
-    # TODO: Return hash with various statistics using multiple aggregations
+    {
+      total_movies: count,
+      average_rating: average(:rating)&.round(2),
+      average_budget: average(:budget)&.round(0),
+      average_box_office: average(:box_office)&.round(0),
+      total_box_office: sum(:box_office),
+      most_common_genre: group(:genre).count.max_by { |_, count| count }&.first,
+      year_range: [minimum(:release_year), maximum(:release_year)]
+    }
   end
 
   # 99. Advanced search with multiple filters
   def self.advanced_search(filters = {})
-    # TODO: Dynamic query building based on filters hash
+    query = all
+    query = query.where("rating >= ?", filters[:min_rating]) if filters[:min_rating]
+    query = query.where("rating <= ?", filters[:max_rating]) if filters[:max_rating]
+    query = query.where(genre: filters[:genre]) if filters[:genre]
+    query = query.where("release_year >= ?", filters[:min_year]) if filters[:min_year]
+    query = query.where("release_year <= ?", filters[:max_year]) if filters[:max_year]
+    query = query.where("budget >= ?", filters[:min_budget]) if filters[:min_budget]
+    query = query.where("budget <= ?", filters[:max_budget]) if filters[:max_budget]
+    query
   end
 
-  # 100. Ultimate challenge: Dynamic query builder
+  # 100. Dynamic query builder
   def self.dynamic_query(options = {})
-    # TODO: Build complex query based on dynamic options
-    # Should handle: sorting, filtering, grouping, limiting, calculations
+    query = all
+
+    # Apply ordering
+    if options[:order_by]
+      direction = options[:direction] || :asc
+      query = query.order(options[:order_by] => direction)
+    end
+
+    # Apply limit
+    query = query.limit(options[:limit]) if options[:limit]
+
+    # Apply offset
+    query = query.offset(options[:offset]) if options[:offset]
+
+    query
   end
 end
