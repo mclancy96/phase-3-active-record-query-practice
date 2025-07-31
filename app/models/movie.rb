@@ -5,27 +5,27 @@ class Movie < ActiveRecord::Base
   # ==================== BASIC FINDERS (Class Methods) ====================
   # 1. Find movie by exact title
   def self.find_by_exact_title(title)
-    find_by(title: title)
+    # TODO: Use find_by to find movie with exact title match
   end
 
   # 2. Find all movies by director
   def self.by_director(director_name)
-    where(director: director_name)
+    # TODO: Use .where to find all movies by specific director
   end
 
   # 3. Find movies in specific genre
   def self.in_genre(genre_name)
-    where(genre: genre_name)
+    # TODO: Use .where to find movies in specific genre
   end
 
   # 4. Find movies released in specific year
   def self.released_in_year(year)
-    where(release_year: year)
+    # TODO: Use .where to find movies released in specific year
   end
 
   # 5. Find movies by studio
   def self.by_studio(studio_name)
-    where(studio: studio_name)
+    # TODO: Use .where to find movies by specific studio
   end
 
   # ==================== RATING QUERIES (Class Methods) ====================
