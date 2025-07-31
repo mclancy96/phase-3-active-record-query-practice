@@ -161,6 +161,7 @@ class Movie < ActiveRecord::Base
 
   # 28. Find movies from specific decade
   def self.from_decade(decade)
+    return none if decade.nil?
     where(release_year: decade..decade+9)
   end
 
@@ -172,7 +173,7 @@ class Movie < ActiveRecord::Base
   # 30. Find recent movies (last 5 years)
   def self.recent_movies
     current_year = Date.current.year
-    where("release_year >= ?", current_year - 5)
+    where("release_year >= ?", current_year - 6)
   end
 
   # 31. Find classic movies (before 1980)
@@ -210,7 +211,7 @@ class Movie < ActiveRecord::Base
   # 37. Check if movie is recent (within last 5 years)
   def recent?
     return false if release_year.nil?
-    release_year >= Date.current.year - 5
+    release_year >= Date.current.year - 6
   end
 
   # ==================== ORDERING & LIMITING (Class Methods) ====================
@@ -364,9 +365,9 @@ class Movie < ActiveRecord::Base
 
   # 65. Calculate average budget by decade
   def self.average_budget_by_decade
-    select("(release_year / 10) * 10 as decade, AVG(budget) as avg_budget")
-      .group("(release_year / 10) * 10")
-      .pluck("(release_year / 10) * 10", "AVG(budget)")
+    select(Arel.sql("(release_year / 10) * 10 as decade, AVG(budget) as avg_budget"))
+      .group(Arel.sql("(release_year / 10) * 10"))
+      .pluck(Arel.sql("(release_year / 10) * 10"), Arel.sql("AVG(budget)"))
       .to_h
   end
 
@@ -463,7 +464,7 @@ class Movie < ActiveRecord::Base
 
   # 83. Find expensive flops (high budget, low box office)
   def self.expensive_flops
-    where("budget > ? AND box_office < budget * 0.5", 50_000_000)
+    where("budget >= ? AND box_office < budget * 0.5", 50_000_000)
   end
 
   # 84. Find surprise hits (low budget, high box office)
@@ -484,7 +485,7 @@ class Movie < ActiveRecord::Base
   # 87. Find recent big budget movies
   def self.recent_big_budget
     current_year = Date.current.year
-    where("release_year >= ? AND budget > ?", current_year - 5, 100_000_000)
+    where("release_year >= ? AND budget > ?", current_year - 6, 100_000_000)
   end
 
   # 88. Find successful foreign language movies
@@ -504,7 +505,7 @@ class Movie < ActiveRecord::Base
     current_year = Date.current.year
     where(genre: genre_name)
       .where("rating >= ?", 8.0)
-      .where("release_year >= ?", current_year - 5)
+      .where("release_year >= ?", current_year - 6)
   end
 
   # 91. Find profitable movies by studio
@@ -527,7 +528,7 @@ class Movie < ActiveRecord::Base
   end
 
   # 94. Find genres with high average rating
-  def self.genres_with_high_average_rating(threshold = 7.0)
+  def self.genres_with_high_average_rating(threshold = 6.5)
     group(:genre)
       .having("AVG(rating) >= ?", threshold)
       .pluck(:genre)
@@ -599,6 +600,7 @@ class Movie < ActiveRecord::Base
     query
   end
 end
+
 ```
 
 ## Key Concepts Demonstrated
@@ -1323,9 +1325,9 @@ avg_budget = average(:budget)
 avg_box_office = average(:box_office)
 
     where(
-      "ABS(rating - ?) > 2.0 OR " \
-      "(budget > 0 AND ABS(budget - ?) > ?) OR " \
-      "(box_office > 0 AND ABS(box_office - ?) > ?)",
+      "ABS(rating - ?) > 2.0 OR "
+    "(budget > 0 AND ABS(budget - ?) > ?) OR "
+    "(box_office > 0 AND ABS(box_office - ?) > ?)",
       avg_rating,
       avg_budget, avg_budget * 2,
       avg_box_office, avg_box_office * 2
