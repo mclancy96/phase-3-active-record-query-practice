@@ -1,0 +1,7 @@
+development:
+  adapter: sqlite3
+  database: db/movies.sqlite3
+
+test:
+  adapter: sqlite3
+  database: db/movies_test.sqlite3
